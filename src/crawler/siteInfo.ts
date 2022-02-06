@@ -48,7 +48,6 @@ export const siteInfo: SiteInfo[] = [
 		},
 
 		prefix: (val) => (val !== undefined ? `https://www.etoland.co.kr/bbs/${val?.replace('./', '')}` : undefined),
-		// range: [2, 10],
 		range: [2, 76],
 	},
 	//=================== INVEN ================//
@@ -105,22 +104,21 @@ export const pathInfo: PathInfo[] = [
 		_from: etoland,
 		_upload_date: {
 			paths: [
-				`#mw_basic > table.view_table.no_ban_div > tbody > tr:nth-child(4) > td > span > span.mw_basic_view_datetime`,
-				,
-				`#mw_basic > div.board_view_wrap > div.info_wrap.no_ban_div > span.datetime`,
+				'#mw_basic > table.view_table.no_ban_div > tbody > tr:nth-child(4) > td > span > span.mw_basic_view_datetime',
+				'#mw_basic > div.board_view_wrap > div.info_wrap.no_ban_div > span.datetime',
 			],
 			modifier: (val) => new Date(val),
 		},
-		_content: { path: `#view_content`, modifier: null },
+		_content: { path: '#view_content', modifier: null },
 	},
 
 	//=================== INVEN ================//
 	{
 		_from: inven,
-		_title: { path: `#tbArticle > div.articleMain > div.articleSubject > div.articleTitle > h1`, modifier: null },
-		_author: { path: `#tbArticle > div.articleHead.hC_silver1 > div > div.articleWriter > span`, modifier: null },
+		_title: { path: '#tbArticle > div.articleMain > div.articleSubject > div.articleTitle > h1', modifier: null },
+		_author: { path: '#tbArticle > div.articleHead.hC_silver1 > div > div.articleWriter > span', modifier: null },
 		_hit: {
-			path: `#tbArticle > div.articleHead.hC_silver1 > div > div.articleHit`,
+			path: '#tbArticle > div.articleHead.hC_silver1 > div > div.articleHit',
 			modifier: (val) => {
 				const replacedVal = val.replaceAll('\t', '').replaceAll('\n', '').replaceAll(',', '');
 
@@ -128,27 +126,24 @@ export const pathInfo: PathInfo[] = [
 			},
 		},
 		_upload_date: {
-			paths: [`#tbArticle > div.articleHead.hC_silver1 > div > div.articleDate`],
+			paths: ['#tbArticle > div.articleHead.hC_silver1 > div > div.articleDate'],
 			modifier: (val) => new Date(val),
 		},
-		_content: { path: `#powerbbsContent`, modifier: null },
+		_content: { path: '#powerbbsContent', modifier: null },
 	},
 	//=================== ILBE ================//
 	{
 		_from: ilbe,
-		_title: { path: `#content-wrap > div > div.board-view > div.post-wrap > div.post-header > h3 > a`, modifier: null },
-		_author: { path: `#content-wrap > div > div.board-view > div.post-wrap > div.post-header > span > a`, modifier: null },
+		_title: { path: '#content-wrap > div > div.board-view > div.post-wrap > div.post-header > h3 > a', modifier: null },
+		_author: { path: '#content-wrap > div > div.board-view > div.post-wrap > div.post-header > span > a', modifier: null },
 		_hit: {
-			path: `#content-wrap > div > div.board-list > ul > li.list-current-doc > span.view`,
-			modifier: (val) => {
-				console.debug('val', val);
-				return parseInt(val.replaceAll(',', ''), 10) || -99;
-			},
+			path: '#content-wrap > div > div.board-list > ul > li.list-current-doc > span.view',
+			modifier: (val) => parseInt(val.replaceAll(',', ''), 10) || -99,
 		},
 		_upload_date: {
-			paths: [`#content-wrap > div > div.board-view > div.post-wrap > div.post-count > div.count > span.date`],
+			paths: ['#content-wrap > div > div.board-view > div.post-wrap > div.post-count > div.count > span.date'],
 			modifier: (val) => new Date(val),
 		},
-		_content: { path: `#content-wrap > div > div.board-view > div.post-wrap > div.post-content`, modifier: null },
+		_content: { path: '#content-wrap > div > div.board-view > div.post-wrap > div.post-content', modifier: null },
 	},
 ];
