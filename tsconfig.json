@@ -1,0 +1,32 @@
+{
+	"compilerOptions": {
+		"removeComments": true,
+		"target": "ESNext",
+		"lib": ["ESNext"],
+		"moduleResolution": "Node",
+		"module": "CommonJS",
+		"outDir": "build",
+		"noEmit": true,
+		"baseUrl": "./src",
+		"allowJs": true,
+		"declaration": true,
+		"emitDeclarationOnly": false,
+		"sourceMap": false,
+		"isolatedModules": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"noImplicitAny": true,
+		"strictNullChecks": false,
+		"skipLibCheck": true
+	},
+	"ts-node": {
+		"require": ["tsconfig-paths/register"],
+		"compilerOptions": {
+			"module": "CommonJS"
+		}
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": ["node_modules", "build"]
+}
