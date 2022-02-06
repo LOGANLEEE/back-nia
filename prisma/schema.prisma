@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model new_posts {
+  title       String    @db.VarChar
+  author      String    @db.VarChar
+  hit         Int
+  upload_date DateTime? @db.Timestamp(6)
+  id          Int       @id(map: "newpost_pk") @default(autoincrement())
+  from        String    @db.VarChar
+  content     String?   @db.VarChar
+  link        String    @db.VarChar
+  isnew       Boolean   @default(false)
+}
+
+model posts {
+  title       String    @db.VarChar
+  author      String    @db.VarChar
+  hit         Int
+  upload_date DateTime? @db.Timestamp(6)
+  id          Int       @id(map: "newpost_pk_1") @default(autoincrement())
+  from        String    @db.VarChar
+  content     String?   @db.VarChar
+  link        String    @db.VarChar
+  isnew       Boolean   @default(false)
+}
