@@ -1,12 +1,13 @@
 import compression from 'compression';
 import express from 'express';
 import { initProcess } from 'crawler';
+import cors from 'cors';
 
 const app = express();
 const port = 4000;
 
 const isDebug = false;
-
+app.use(cors());
 app.use(compression());
 
 app.get('/', (req, res) => {
