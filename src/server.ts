@@ -5,11 +5,13 @@ import cors from 'cors';
 
 const app = express();
 const port = 4000;
-
 const isDebug = false;
+
+// server middle ware
 app.use(cors());
 app.use(compression());
 
+// router
 app.get('/', (req, res) => {
 	res.send('Hello World!');
 });
@@ -17,6 +19,8 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
 	isDebug && console.log(`NIA server is runnin on ${port}`);
 });
+
+// job
 
 setInterval(() => {
 	const cur = new Date();
