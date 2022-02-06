@@ -108,7 +108,7 @@ const detail_parser = (linkHolder: LinkHolder[], name: string, isDebug: boolean)
 									author: author.trim(),
 									hit,
 									upload_date,
-									content,
+									content: content.replaceAll('\t', '').replaceAll('\n', ''),
 									link: href,
 									from: _from,
 									isnew: true,
