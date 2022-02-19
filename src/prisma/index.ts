@@ -2,6 +2,8 @@ import { Prisma, PrismaClient } from '@prisma/client';
 
 export const prisma = new PrismaClient();
 
+export const get_new_posts = () => prisma.$connect().then(() => prisma.new_posts.findMany({ where: { isnew: true } }));
+
 export const create_new_post = (holder: Prisma.new_postsCreateManyInput[]) =>
 	prisma
 		.$connect()
