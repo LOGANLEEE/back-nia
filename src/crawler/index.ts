@@ -28,7 +28,7 @@ export const first_process = ({ isDebug }: InitType) =>
 
 				for (let page = pages[0]; page <= pages[1]; page++) {
 					console.log(`Going for ${name}....${page} page ...`);
-					const { status = -1, data } = await fetch.get(url(page));
+					const { status, data } = await fetch.get(url(page)).catch(() => ({ data: [], status: 999 }));
 
 					if (status === 200) {
 						const $ = cheerio.load(data);
@@ -51,6 +51,7 @@ export const first_process = ({ isDebug }: InitType) =>
 						// }
 					}
 				}
+
 				const { parsing_done, count } = await detail_parser(linkHolder, name, isDebug);
 
 				parsing_done ? success_count++ : fail_count++;
@@ -70,64 +71,59 @@ const detail_parser = (linkHolder: LinkHolder[], name: string, isDebug: boolean)
 		if (_from !== undefined) {
 			const holder: Prisma.new_postsCreateManyInput[] = [];
 
-			try {
-				linkHolder.forEach(({ href, preHit, preTitle, preAuthor }, idx) => {
-					setTimeout(async () => {
-						const { data, status } = await fetch.get(
-							isDebug ? 'https://www.etoland.co.kr/bbs/board.php?bo_table=sisabbs&wr_id=182790' : href,
-						);
+			linkHolder.forEach(({ href, preHit, preTitle, preAuthor }, idx) => {
+				setTimeout(async () => {
+					const { data, status } = await fetch
+						.get(isDebug ? 'https://www.etoland.co.kr/bbs/board.php?bo_table=sisabbs&wr_id=182790' : href)
+						.catch(() => ({ data: [], status: 999 }));
 
-						if (status === 200) {
-							const $ = cheerio.load(data);
+					if (status === 200) {
+						const $ = cheerio.load(data);
 
-							let title = undefined;
-							if (preTitle) title = preTitle;
-							else title = _title?.modifier ? _title?.modifier($(_title?.path).text()) : $(_title?.path).text();
+						let title = undefined;
+						if (preTitle) title = preTitle;
+						else title = _title?.modifier ? _title?.modifier($(_title?.path).text()) : $(_title?.path).text();
 
-							let author = undefined;
-							if (preAuthor) author = preAuthor;
-							else author = _author?.modifier ? _author?.modifier($(_author?.path).text()) : $(_author?.path).text();
+						let author = undefined;
+						if (preAuthor) author = preAuthor;
+						else author = _author?.modifier ? _author?.modifier($(_author?.path).text()) : $(_author?.path).text();
 
-							const hit = preHit || _hit?.modifier($(_hit?.path).text());
+						const hit = preHit || _hit?.modifier($(_hit?.path).text());
 
-							let upload_date = undefined;
+						let upload_date = undefined;
 
-							_upload_date.paths.some((path) => {
-								const parsedDate = _upload_date.modifier($(path).text());
-								if (parsedDate + '' !== 'Invalid Date') {
-									upload_date = parsedDate;
-									return true;
-								}
-							});
-
-							const content = _content?.modifier ? _content?.modifier($(_content?.path).text()) : $(_content?.path).text();
-
-							if (title !== '') {
-								holder.push({
-									title: title.trim(),
-									author: author.trim(),
-									hit,
-									upload_date,
-									content: content.replaceAll('\t', '').replaceAll('\n', ''),
-									link: href,
-									from: _from,
-									isnew: true,
-								});
+						_upload_date.paths.some((path) => {
+							const parsedDate = _upload_date.modifier($(path).text());
+							if (parsedDate + '' !== 'Invalid Date') {
+								upload_date = parsedDate;
+								return true;
 							}
-						}
+						});
 
-						if (idx + 1 === length) {
-							const { count } = await create_new_post(holder);
-							console.log(`Parser: ${_from}, ${count} posts are inserted`);
-							resolve({ parsing_done: true, count });
+						const content = _content?.modifier ? _content?.modifier($(_content?.path).text()) : $(_content?.path).text();
+
+						if (title !== '') {
+							holder.push({
+								title: title.trim(),
+								author: author.trim(),
+								hit,
+								upload_date,
+								content: content.replaceAll('\t', '').replaceAll('\n', ''),
+								link: href,
+								from: _from,
+								isnew: true,
+							});
 						}
-						if (isDebug) throw loopBreakException;
-					}, 300 * idx);
-				});
-			} catch (error) {
-				if (error !== loopBreakException) throw error;
-				resolve({ parsing_done: false, count: 0 });
-			}
+					}
+
+					if (idx + 1 === length) {
+						const { count } = await create_new_post(holder);
+						console.log(`Parser: ${_from}, ${count} posts are inserted`);
+						resolve({ parsing_done: true, count });
+					}
+					if (isDebug) throw loopBreakException;
+				}, 300 * idx);
+			});
 		} else {
 			resolve({ parsing_done: false, count: 0 });
 		}
@@ -145,6 +141,7 @@ export const initProcess = async ({ isDebug }: InitType) => {
 			const { delete_count, doProceed: do_proceed_thrid } = await clean_up_old_post();
 			if (do_proceed_thrid) {
 				console.log(`3: old posts ${delete_count} are moved `);
+				console.log('============ process done ============');
 			}
 		}
 	}
