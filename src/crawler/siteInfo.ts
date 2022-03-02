@@ -1,6 +1,8 @@
 const inven = 'inven';
 const ilbe = 'ilbe';
 const etoland = 'etoland';
+const dc = 'dc';
+const fm = 'fm';
 
 interface SiteInfo {
 	name: string;
@@ -22,9 +24,50 @@ interface SiteInfo {
 		path: (idx: number) => string;
 		modifier?: (val: string) => number;
 	};
+	_skip?: (page?: number, idx?: number) => boolean;
 }
 
 export const siteInfo: SiteInfo[] = [
+	// ================== FMKOREA =====================//
+	{
+		name: fm,
+		url: (page) => `https://www.fmkorea.com/index.php?mid=best&listStyle=list&page=${page}`,
+		pages: [1, 2],
+		link: (idx) => `#bd_189545458_0 > div > table > tbody > tr:nth-child(${idx}) > td.title.hotdeal_var8 > a.hx`,
+		// _title: { path: (idx) => `#bd_189545458_0 > div > table > tbody > tr:nth-child(${idx}) > td.title.hotdeal_var8 > a.hx` },
+		_author: {
+			path: (idx) => `#bd_189545458_0 > div > table > tbody > tr:nth-child(${idx}) > td.author > span > a`,
+		},
+		_hit: {
+			path: (idx) => `#bd_189545458_0 > div > table > tbody > tr:nth-child(${idx}) > td:nth-child(6)`,
+			modifier: (val) => parseInt(val, 10) || -99,
+		},
+
+		prefix: (val) => `https://www.fmkorea.com${val}`,
+		range: [1, 20],
+	},
+
+	// ================== DC =====================//
+	{
+		name: dc,
+		url: (page) => `https://gall.dcinside.com/board/lists/?id=dcbest&page=${page}`,
+		pages: [1, 2],
+		link: (idx) =>
+			`#container > section.left_content > article:nth-child(3) > div.gall_listwrap.list > table > tbody > tr:nth-child(${idx}) > td.gall_tit.ub-word > a:nth-child(1)`,
+		_author: {
+			path: (idx) =>
+				`#container > section.left_content > article:nth-child(3) > div.gall_listwrap.list > table > tbody > tr:nth-child(${idx}) > td.gall_writer.ub-writer > span > em`,
+		},
+		_hit: {
+			path: (idx) =>
+				`#container > section.left_content > article:nth-child(3) > div.gall_listwrap.list > table > tbody > tr:nth-child(${idx}) > td.gall_count`,
+			modifier: (val) => parseInt(val, 10) || -99,
+		},
+
+		prefix: (val) => `https://gall.dcinside.com/${val}`,
+		range: [1, 50],
+		_skip: (page, idx) => page === 1 && idx <= 3,
+	},
 	//=================== ETOLAND ================//
 	{
 		name: etoland,
@@ -40,14 +83,13 @@ export const siteInfo: SiteInfo[] = [
 		},
 		_author: {
 			path: (idx) => `#container > div.right > div > ul > li:nth-child(${idx}) > div.writer`,
-			// #container > div.right > div > ul > li:nth-child(74) > div.writer > span
 		},
 		_hit: {
 			path: (idx) => `#container > div.right > div > ul > li:nth-child(${idx}) > div.wr_hit`,
 			modifier: (val) => parseInt(val.replaceAll(',', ''), 10) || -99,
 		},
 
-		prefix: (val) => (val !== undefined ? `https://www.etoland.co.kr/bbs/${val?.replace('./', '')}` : undefined),
+		prefix: (val) => `https://www.etoland.co.kr/bbs/${val?.replace('./', '')}`,
 		range: [2, 76],
 	},
 	//=================== INVEN ================//
@@ -64,7 +106,7 @@ export const siteInfo: SiteInfo[] = [
 		url: (page) => `https://www.ilbe.com/list/ilbe?page=${page}&listSize=60&listStyle=list`,
 		pages: [1, 2],
 		link: (idx) => `#content-wrap > div > div.board-list > ul > li:nth-child(${idx}) > span.title > a`,
-		prefix: (val) => (val !== undefined ? `https://www.ilbe.com${val}` : undefined),
+		prefix: (val) => `https://www.ilbe.com${val}`,
 		range: [5, 64],
 		_hit: {
 			path: (idx) => `#content-wrap > div > div.board-list > ul > li:nth-child(${idx}) > span.view`,
@@ -99,6 +141,32 @@ interface PathInfo {
 }
 
 export const pathInfo: PathInfo[] = [
+	//=================== FM KOREA ================//
+	{
+		_from: fm,
+		_title: { path: '#bd_capture > div.rd_hd.clear > div.board.clear > div.top_area.ngeb > h1 > span' },
+		_upload_date: {
+			paths: ['#bd_capture > div.rd_hd.clear > div.board.clear > div.top_area.ngeb > span'],
+			modifier: (val) => new Date(val),
+		},
+		_content: {
+			path: '#bd_capture > div.rd_body.clear > article > div',
+		},
+	},
+	//=================== DC ================//
+	{
+		_from: dc,
+		_title: {
+			path: '#container > section > article:nth-child(3) > div.view_content_wrap > header > div > h3 > span.title_subject',
+		},
+		_upload_date: {
+			paths: ['#container > section > article:nth-child(3) > div.view_content_wrap > header > div > div > div.fl > span.gall_date'],
+			modifier: (val) => new Date(val),
+		},
+		_content: {
+			path: '#container > section > article:nth-child(3) > div.view_content_wrap > div > div.inner.clear > div.writing_view_box',
+		},
+	},
 	//=================== ETOLAND ================//
 	{
 		_from: etoland,
