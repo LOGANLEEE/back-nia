@@ -2,6 +2,7 @@ import _axios, { AxiosError } from 'axios';
 import { decode } from 'iconv-lite';
 
 export const fetch = _axios.create({
+	// validateStatus: (status) => status > 0,
 	responseType: 'arraybuffer',
 	// timeout: 60 * 1000 * 3,
 	// httpsAgent: new https.Agent({ keepAlive: true }),
