@@ -34,3 +34,9 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+dummy.jsonc
+dummy2.jsonc
+dummy3.jsonc
+dummy4.jsonc
+dummy5.jsonc
