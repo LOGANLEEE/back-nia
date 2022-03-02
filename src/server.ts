@@ -18,7 +18,7 @@ app.get('/init', (req, res) => {
 	console.log('======================= INIT PROCESS =======================');
 	console.log(`JOB Started at ${cur}`);
 	res.send('process started!');
-	initProcess({ isDebug: false });
+	initProcess({ isDebug: true });
 });
 
 app.get('/check', (req, res) => {
