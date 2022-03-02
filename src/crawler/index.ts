@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import * as cheerio from 'cheerio';
 import { pathInfo, siteInfo } from 'crawler/siteInfo';
+import e from 'express';
 import { clean_up_old_post, create_new_post, setNewPostAsOld } from 'prisma';
 import { fetch } from 'utils/axiosClient';
 
@@ -22,15 +23,19 @@ export const first_process = ({ isDebug }: InitType) =>
 		let success_count = 0;
 		let fail_count = 0;
 		let post_count = 0;
-		siteInfo.forEach(async ({ name, pages, link, range, url, prefix, _hit, _title, _author }) => {
-			if (isDebug ? name === 'etoland' : true) {
+		siteInfo.forEach(async ({ name, pages, link, range, url, prefix, _hit, _title, _author, _skip }) => {
+			if (isDebug ? name === 'fm' : true) {
 				const linkHolder: LinkHolder[] = [];
 
 				for (let page = pages[0]; page <= pages[1]; page++) {
-					console.log(`Going for ${name}....${page} page ...`);
-					const { status, data } = await fetch.get(url(page)).catch(() => ({ data: [], status: 999 }));
+					console.log(`Going for ${name} ${page} page`);
 
-					if (status === 200) {
+					const { data, isError } = await fetch
+						.get(url(page))
+						.then((e) => ({ ...e, isError: false }))
+						.catch(() => ({ data: [], isError: true }));
+
+					if (!isError) {
 						const $ = cheerio.load(data);
 
 						for (let idx = range[0]; idx <= range[1]; idx++) {
@@ -43,21 +48,21 @@ export const first_process = ({ isDebug }: InitType) =>
 							const preAuthor =
 								_author && _author?.modifier ? _author.modifier($(_author?.path(idx)).text()) : $(_author?.path(idx)).text();
 
-							href && linkHolder.push({ href, preHit, preTitle, preAuthor });
-						}
+							const skip = _skip ? _skip(page, idx) : false;
 
-						// for (let percent = 0.2; percent <= 1; percent += 0.2) {
-						// 	Math.round(siteInfo.length * percent) === count + fail_count && console.log(`${percent * 10}0%`);
-						// }
+							href && !skip && linkHolder.push({ href, preHit, preTitle, preAuthor });
+						}
 					}
 				}
-
 				const { parsing_done, count } = await detail_parser(linkHolder, name, isDebug);
-
+				// console.log('linkHolder:', linkHolder.length);
 				parsing_done ? success_count++ : fail_count++;
 				post_count += count;
+				// console.log('success_count', success_count);
+				// console.log('fail_count', fail_count);
+				if (isDebug && success_count + fail_count === 1) resolve({ doProceed: true, success_count, fail_count, post_count });
 
-				if (siteInfo.length === success_count + fail_count) resolve({ doProceed: true, success_count, fail_count, post_count });
+				if (!isDebug && siteInfo.length === success_count + fail_count) resolve({ doProceed: true, success_count, fail_count, post_count });
 			}
 		});
 	});
@@ -73,11 +78,12 @@ const detail_parser = (linkHolder: LinkHolder[], name: string, isDebug: boolean)
 
 			linkHolder.forEach(({ href, preHit, preTitle, preAuthor }, idx) => {
 				setTimeout(async () => {
-					const { data, status } = await fetch
-						.get(isDebug ? 'https://www.etoland.co.kr/bbs/board.php?bo_table=sisabbs&wr_id=182790' : href)
-						.catch(() => ({ data: [], status: 999 }));
+					const { data, isError } = await fetch
+						.get(href)
+						.then((e) => ({ ...e, isError: false }))
+						.catch(() => ({ data: [], status: 999, isError: true }));
 
-					if (status === 200) {
+					if (!isError) {
 						const $ = cheerio.load(data);
 
 						let title = undefined;
@@ -121,7 +127,7 @@ const detail_parser = (linkHolder: LinkHolder[], name: string, isDebug: boolean)
 						console.log(`Parser: ${_from}, ${count} posts are inserted`);
 						resolve({ parsing_done: true, count });
 					}
-					if (isDebug) throw loopBreakException;
+					// if (isDebug) throw loopBreakException;
 				}, 300 * idx);
 			});
 		} else {
