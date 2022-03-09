@@ -3,6 +3,7 @@ const ilbe = 'ilbe';
 const etoland = 'etoland';
 const dc = 'dc';
 const fm = 'fm';
+const nate = 'nate';
 
 interface SiteInfo {
 	name: string;
@@ -28,6 +29,15 @@ interface SiteInfo {
 }
 
 export const siteInfo: SiteInfo[] = [
+	// ================== NATE =====================//
+	{
+		name: nate,
+		url: (page) => `https://pann.nate.com/talk/ranking?rankingType=total&page=${page}`,
+		pages: [1, 2],
+		link: (idx) => `#container > div.content.sub > div.mainarea > div.tsCnt > div.cntList > ul > li:nth-child(${idx}) > dl > dt > a`,
+		prefix: (val) => `https://pann.nate.com${val}`,
+		range: [1, 50],
+	},
 	// ================== FMKOREA =====================//
 	{
 		name: fm,
@@ -144,6 +154,25 @@ interface PathInfo {
 }
 
 export const pathInfo: PathInfo[] = [
+	//=================== NATE ================//
+	{
+		_from: nate,
+		_title: { path: '#container > div.content.sub > div.viewarea > div.view-wrap > div.post-tit-info.emblem.rank > h4' },
+		_upload_date: {
+			paths: ['#container > div.content.sub > div.viewarea > div.view-wrap > div.post-tit-info.emblem.rank > div.info > span.date'],
+			modifier: (val) => new Date(val),
+		},
+		_author: {
+			path: '#container > div.content.sub > div.viewarea > div.view-wrap > div.post-tit-info.emblem.rank > div.info > a',
+		},
+		_hit: {
+			path: '#container > div.content.sub > div.viewarea > div.view-wrap > div.post-tit-info.emblem.rank > div.info > span.count',
+			modifier: (val) => parseInt(val.replace('조회', '').replace(',', '')) || -99,
+		},
+		_content: {
+			path: '#contentArea',
+		},
+	},
 	//=================== FM KOREA ================//
 	{
 		_from: fm,

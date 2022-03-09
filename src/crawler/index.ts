@@ -22,7 +22,7 @@ export const first_process = ({ isDebug }: InitType) =>
 		let fail_count = 0;
 		let post_count = 0;
 		siteInfo.forEach(async ({ name, pages, link, range, url, prefix, _hit, _title, _author, _skip }) => {
-			if (isDebug ? name === 'etoland' : true) {
+			if (isDebug ? name === 'nate' : true) {
 				const linkHolder: LinkHolder[] = [];
 
 				for (let page = pages[0]; page <= pages[1]; page++) {
