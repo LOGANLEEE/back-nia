@@ -34,7 +34,6 @@ export const siteInfo: SiteInfo[] = [
 		url: (page) => `https://www.fmkorea.com/index.php?mid=best&listStyle=list&page=${page}`,
 		pages: [1, 2],
 		link: (idx) => `#bd_189545458_0 > div > table > tbody > tr:nth-child(${idx}) > td.title.hotdeal_var8 > a.hx`,
-		// _title: { path: (idx) => `#bd_189545458_0 > div > table > tbody > tr:nth-child(${idx}) > td.title.hotdeal_var8 > a.hx` },
 		_author: {
 			path: (idx) => `#bd_189545458_0 > div > table > tbody > tr:nth-child(${idx}) > td.author > span > a`,
 		},
@@ -64,33 +63,37 @@ export const siteInfo: SiteInfo[] = [
 			modifier: (val) => parseInt(val, 10) || -99,
 		},
 
-		prefix: (val) => `https://gall.dcinside.com/${val}`,
+		prefix: (val) => `https://gall.dcinside.com${val}`,
 		range: [1, 50],
 		_skip: (page, idx) => page === 1 && idx <= 3,
 	},
 	//=================== ETOLAND ================//
 	{
 		name: etoland,
-		url: (page) => `https://www.etoland.co.kr/bbs/pop.php?view=&sfl=&sword=&adult=&start_num=&end_num=&page=${page}`,
-		pages: [1, 1],
-		link: (idx) => `#container > div.right > div > ul > li:nth-child(${idx}) > div.subject > a`,
+		// url: (page) => `https://www.etoland.co.kr/bbs/pop.php?view=&sfl=&sword=&adult=&start_num=&end_num=&page=${page}`,
+		url: (page) => `https://www.etoland.co.kr/bbs/board.php?bo_table=hit&page=${page}`,
+		pages: [1, 2],
+		// link: (idx) => `#container > div.right > div > ul > li:nth-child(${idx}) > div.subject > a`,
+		link: (idx) => `#fboardlist > div > ul > li:nth-child(${idx}) > div.subject > a.subject_a`,
 		_title: {
-			path: (idx) => `#container > div.right > div > ul > li:nth-child(${idx}) > div.subject > a`,
+			path: (idx) => `#fboardlist > div > ul > li:nth-child(${idx}) > div.subject > a.subject_a`,
 			modifier: (val) => {
 				const filtered = val.replaceAll('\t', '').replaceAll('\n', '').trim();
 				return filtered.split('         ')[0].trim();
 			},
 		},
 		_author: {
-			path: (idx) => `#container > div.right > div > ul > li:nth-child(${idx}) > div.writer`,
+			// path: (idx) => `#container > div.right > div > ul > li:nth-child(${idx}) > div.writer`,
+			path: (idx) => `#fboardlist > div > ul > li:nth-child(${idx}) > div.writer > a > span`,
 		},
 		_hit: {
-			path: (idx) => `#container > div.right > div > ul > li:nth-child(${idx}) > div.wr_hit`,
+			// path: (idx) => `#container > div.right > div > ul > li:nth-child(${idx}) > div.wr_hit`,
+			path: (idx) => `#fboardlist > div > ul > li:nth-child(${idx}) > div.views`,
 			modifier: (val) => parseInt(val.replaceAll(',', ''), 10) || -99,
 		},
 
-		prefix: (val) => `https://www.etoland.co.kr/bbs/${val?.replace('./', '')}`,
-		range: [2, 76],
+		prefix: (val) => `https://www.etoland.co.kr${val?.replace('..', '')}`,
+		range: [4, 64],
 	},
 	//=================== INVEN ================//
 	{
