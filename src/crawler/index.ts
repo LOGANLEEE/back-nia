@@ -22,7 +22,7 @@ export const first_process = ({ isDebug }: InitType) =>
 		let fail_count = 0;
 		let post_count = 0;
 		siteInfo.forEach(async ({ name, pages, link, range, url, prefix, _hit, _title, _author, _skip }) => {
-			if (isDebug ? name === 'nate' : true) {
+			if (isDebug ? name === 'ppomppu' : true) {
 				const linkHolder: LinkHolder[] = [];
 
 				for (let page = pages[0]; page <= pages[1]; page++) {
@@ -52,8 +52,8 @@ export const first_process = ({ isDebug }: InitType) =>
 						}
 					}
 				}
+				console.log('linkHolder:', linkHolder);
 				const { parsing_done, count } = await detail_parser(linkHolder, name, isDebug);
-				// console.log('linkHolder:', linkHolder.length);
 				parsing_done ? success_count++ : fail_count++;
 				post_count += count;
 				// console.log('success_count', success_count);

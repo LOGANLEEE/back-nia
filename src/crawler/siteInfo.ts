@@ -4,6 +4,7 @@ const etoland = 'etoland';
 const dc = 'dc';
 const fm = 'fm';
 const nate = 'nate';
+const ppomppu = 'ppomppu';
 
 interface SiteInfo {
 	name: string;
@@ -29,6 +30,29 @@ interface SiteInfo {
 }
 
 export const siteInfo: SiteInfo[] = [
+	// ================== PPOMPPU =====================//
+	{
+		name: ppomppu,
+		url: (page) => `https://www.ppomppu.co.kr/hot.php?id=&page=${page}&category=2&search_type=&keyword=&page_num=&del_flag=&bbs_list_category=0`,
+		pages: [1, 3],
+		link: (idx) =>
+			`body > div > div.contents > div.container > div:nth-child(2) > div.board_box > table.board_table > tbody > tr:nth-child(${idx}) > td:nth-child(4) > a`,
+		_title: {
+			path: (idx) =>
+				`body > div > div.contents > div.container > div:nth-child(2) > div.board_box > table.board_table > tbody > tr:nth-child(${idx}) > td:nth-child(4) > a`,
+		},
+		_author: {
+			path: (idx) =>
+				`body > div > div.contents > div.container > div:nth-child(2) > div.board_box > table.board_table > tbody > tr:nth-child(${idx}) > td:nth-child(2)`,
+		},
+		_hit: {
+			path: (idx) =>
+				`body > div > div.contents > div.container > div:nth-child(2) > div.board_box > table.board_table > tbody > tr:nth-child(${idx}) > td:nth-child(7)`,
+			modifier: (val) => parseInt(val),
+		},
+		prefix: (val) => `https://www.ppomppu.co.kr${val?.replaceAll('/zboard/zboard', '/zboard/view')}`,
+		range: [4, 23],
+	},
 	// ================== NATE =====================//
 	{
 		name: nate,
@@ -70,7 +94,7 @@ export const siteInfo: SiteInfo[] = [
 		_hit: {
 			path: (idx) =>
 				`#container > section.left_content > article:nth-child(3) > div.gall_listwrap.list > table > tbody > tr:nth-child(${idx}) > td.gall_count`,
-			modifier: (val) => parseInt(val, 10) || -99,
+			modifier: (val) => parseInt(val) || -99,
 		},
 
 		prefix: (val) => `https://gall.dcinside.com${val}`,
@@ -99,7 +123,7 @@ export const siteInfo: SiteInfo[] = [
 		_hit: {
 			// path: (idx) => `#container > div.right > div > ul > li:nth-child(${idx}) > div.wr_hit`,
 			path: (idx) => `#fboardlist > div > ul > li:nth-child(${idx}) > div.views`,
-			modifier: (val) => parseInt(val.replaceAll(',', ''), 10) || -99,
+			modifier: (val) => parseInt(val.replaceAll(',', '')) || -99,
 		},
 
 		prefix: (val) => `https://www.etoland.co.kr${val?.replace('..', '')}`,
@@ -123,7 +147,7 @@ export const siteInfo: SiteInfo[] = [
 		range: [5, 64],
 		_hit: {
 			path: (idx) => `#content-wrap > div > div.board-list > ul > li:nth-child(${idx}) > span.view`,
-			modifier: (val) => parseInt(val.replaceAll(',', ''), 10) || -99,
+			modifier: (val) => parseInt(val.replaceAll(',', '')) || -99,
 		},
 	},
 ];
@@ -154,6 +178,19 @@ interface PathInfo {
 }
 
 export const pathInfo: PathInfo[] = [
+	//=================== PPOMPPU ================//
+	{
+		_from: ppomppu,
+		_upload_date: {
+			paths: [
+				'body > div > div.contents > div.container > div > table:nth-child(10) > tbody > tr:nth-child(3) > td > table > tbody > tr > td:nth-child(5) > div > div.sub-top-text-box',
+			],
+			modifier: (val) => new Date(val.slice(val.indexOf('등록일:') + 4, val.indexOf('등록일:') + 21).trim()),
+		},
+		_content: {
+			path: 'body > div > div.contents > div.container > div > table:nth-child(15) > tbody > tr:nth-child(1) > td > table > tbody > tr > td > table > tbody > tr > td',
+		},
+	},
 	//=================== NATE ================//
 	{
 		_from: nate,
@@ -222,7 +259,7 @@ export const pathInfo: PathInfo[] = [
 			modifier: (val) => {
 				const replacedVal = val.replaceAll('\t', '').replaceAll('\n', '').replaceAll(',', '');
 
-				return parseInt(replacedVal.slice(3, replacedVal.indexOf('추천:')), 10) || -99;
+				return parseInt(replacedVal.slice(3, replacedVal.indexOf('추천:'))) || -99;
 			},
 		},
 		_upload_date: {
@@ -238,7 +275,7 @@ export const pathInfo: PathInfo[] = [
 		_author: { path: '#content-wrap > div > div.board-view > div.post-wrap > div.post-header > span > a', modifier: null },
 		_hit: {
 			path: '#content-wrap > div > div.board-list > ul > li.list-current-doc > span.view',
-			modifier: (val) => parseInt(val.replaceAll(',', ''), 10) || -99,
+			modifier: (val) => parseInt(val.replaceAll(',', '')) || -99,
 		},
 		_upload_date: {
 			paths: ['#content-wrap > div > div.board-view > div.post-wrap > div.post-count > div.count > span.date'],
