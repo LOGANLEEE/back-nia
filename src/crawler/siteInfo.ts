@@ -34,7 +34,7 @@ export const siteInfo: SiteInfo[] = [
 	{
 		name: ppomppu,
 		url: (page) => `https://www.ppomppu.co.kr/hot.php?id=&page=${page}&category=2&search_type=&keyword=&page_num=&del_flag=&bbs_list_category=0`,
-		pages: [1, 3],
+		pages: [1, 4],
 		link: (idx) =>
 			`body > div > div.contents > div.container > div:nth-child(2) > div.board_box > table.board_table > tbody > tr:nth-child(${idx}) > td:nth-child(4) > a`,
 		_title: {
