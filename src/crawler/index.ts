@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import * as cheerio from 'cheerio';
 import { pathInfo, siteInfo } from 'crawler/siteInfo';
-import e from 'express';
+import { writeFileSync } from 'fs';
 import { clean_up_old_post, create_new_post, setNewPostAsOld } from 'prisma';
 import { fetch } from 'utils/axiosClient';
 
@@ -10,6 +10,7 @@ interface LinkHolder {
 	preHit?: number;
 	preTitle?: string;
 	preAuthor?: string;
+	preDate?: string | Date;
 }
 
 interface InitType {
@@ -21,18 +22,17 @@ export const first_process = ({ isDebug }: InitType) =>
 		let success_count = 0;
 		let fail_count = 0;
 		let post_count = 0;
-		siteInfo.forEach(async ({ name, pages, link, range, url, prefix, _hit, _title, _author, _skip }) => {
-			if (isDebug ? name === 'ppomppu' : true) {
+		siteInfo.forEach(async ({ name, pages, link, range, url, prefix, _hit, _title, _author, _skip, _upload_date }) => {
+			if (isDebug ? name === 'instiz' : true) {
 				const linkHolder: LinkHolder[] = [];
 
 				for (let page = pages[0]; page <= pages[1]; page++) {
-					console.log(`Going for ${name} ${page} page`);
-
 					const { data, isError } = await fetch
 						.get(url(page))
 						.then((e) => ({ ...e, isError: false }))
-						.catch(() => ({ data: [], isError: true }));
+						.catch((err) => ({ data: err, isError: true }));
 
+					console.log(`Going for ${name} ${page} page. isError: ${isError}`);
 					if (!isError) {
 						const $ = cheerio.load(data);
 
@@ -43,16 +43,24 @@ export const first_process = ({ isDebug }: InitType) =>
 
 							const preTitle = _title && _title?.modifier ? _title?.modifier($(_title?.path(idx)).text()) : $(_title?.path(idx)).text();
 
+							const preDate =
+								_upload_date && _upload_date?.modifier
+									? _upload_date?.modifier($(_upload_date?.path(idx)).text())
+									: $(_upload_date?.path(idx)).text();
+
 							const preAuthor =
 								_author && _author?.modifier ? _author.modifier($(_author?.path(idx)).text()) : $(_author?.path(idx)).text();
 
 							const skip = _skip ? _skip(page, idx) : false;
+							// console.log('wtf;', { href, preHit, preTitle, preAuthor, preDate });
 
-							href && !skip && linkHolder.push({ href, preHit, preTitle, preAuthor });
+							href && !skip && linkHolder.push({ href, preHit, preTitle, preAuthor, preDate });
 						}
+					} else {
+						writeFileSync(`./src/debug/${new Date()}.jsonc`, JSON.stringify(data));
 					}
 				}
-				console.log('linkHolder:', linkHolder);
+				// console.log('linkHolder:', linkHolder);
 				const { parsing_done, count } = await detail_parser(linkHolder, name, isDebug);
 				parsing_done ? success_count++ : fail_count++;
 				post_count += count;
@@ -74,7 +82,7 @@ const detail_parser = (linkHolder: LinkHolder[], name: string, isDebug: boolean)
 		if (_from !== undefined) {
 			const holder: Prisma.new_postsCreateManyInput[] = [];
 
-			linkHolder.forEach(({ href, preHit, preTitle, preAuthor }, idx) => {
+			linkHolder.forEach(({ href, preHit, preTitle, preAuthor, preDate }, idx) => {
 				setTimeout(async () => {
 					const { data, isError } = await fetch
 						.get(href)
@@ -96,13 +104,17 @@ const detail_parser = (linkHolder: LinkHolder[], name: string, isDebug: boolean)
 
 						let upload_date = undefined;
 
-						_upload_date.paths.some((path) => {
-							const parsedDate = _upload_date.modifier($(path).text());
-							if (parsedDate + '' !== 'Invalid Date') {
-								upload_date = parsedDate;
-								return true;
-							}
-						});
+						if (preDate) {
+							upload_date = preDate;
+						} else {
+							_upload_date?.paths.some((path) => {
+								const parsedDate = _upload_date.modifier($(path).text());
+								if (parsedDate + '' !== 'Invalid Date') {
+									upload_date = parsedDate;
+									return true;
+								}
+							});
+						}
 
 						const content = _content?.modifier ? _content?.modifier($(_content?.path).text()) : $(_content?.path).text();
 

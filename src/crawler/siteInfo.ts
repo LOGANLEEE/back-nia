@@ -5,6 +5,8 @@ const dc = 'dc';
 const fm = 'fm';
 const nate = 'nate';
 const ppomppu = 'ppomppu';
+const instiz = 'instiz';
+const template = 'template';
 
 interface SiteInfo {
 	name: string;
@@ -26,10 +28,31 @@ interface SiteInfo {
 		path: (idx: number) => string;
 		modifier?: (val: string) => number;
 	};
+	_upload_date?: {
+		path: (idx: number) => string;
+		modifier?: (val: string) => Date | string;
+	};
 	_skip?: (page?: number, idx?: number) => boolean;
 }
 
 export const siteInfo: SiteInfo[] = [
+	// ================== INSTIZ =====================//
+	{
+		name: instiz,
+		url: (page) => `https://www.instiz.net/pt?page=${page}&srt=3&srd=2#greentop`,
+		pages: [1, 1],
+		link: (idx) => `#mainboard > tbody > tr:nth-child(${idx}) > td > div.sbj > a:nth-child(1)`,
+		_title: {
+			path: (idx) => `#mainboard > tbody > tr:nth-child(${idx}) > td > div.sbj > a:nth-child(1)`,
+		},
+		_upload_date: {
+			path: (idx) => `#mainboard > tbody > tr:nth-child(${idx}) > td > div.list_subtitle > div > a:nth-child(1)`,
+			modifier: (val) => new Date().getFullYear() + '.' + val,
+		},
+		prefix: (val) => `https://www.instiz.net${val?.replaceAll('../pt', '/pt')}`,
+		// range: [2, 21],
+		range: [2, 3],
+	},
 	// ================== PPOMPPU =====================//
 	{
 		name: ppomppu,
@@ -166,7 +189,7 @@ interface PathInfo {
 		path: string;
 		modifier: (val: string) => number;
 	};
-	_upload_date: {
+	_upload_date?: {
 		paths: string[];
 
 		modifier?: (val: string) => Date | string;
@@ -178,6 +201,14 @@ interface PathInfo {
 }
 
 export const pathInfo: PathInfo[] = [
+	//=================== INSTIZ ================//
+	{
+		_from: instiz,
+
+		_content: {
+			path: '#memo_content_1',
+		},
+	},
 	//=================== PPOMPPU ================//
 	{
 		_from: ppomppu,
