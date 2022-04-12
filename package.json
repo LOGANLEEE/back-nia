@@ -9,7 +9,7 @@
 	"scripts": {
 		"lint": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" && eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
 		"dev": "nodemon",
-		"prod": "ts-node -r dotenv/config ./src/server.ts dotenv_config_path=./.env.prod",
+		"prod": "NODE_ENV=production ts-node -r dotenv/config ./src/server.ts dotenv_config_path=./.env.prod",
 		"pull": "yarn prisma db pull --force && yarn prisma generate"
 	},
 	"types": "module",
