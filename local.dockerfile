@@ -7,7 +7,7 @@ COPY ./ ./
 
 RUN yarn
 
-CMD [ "yarn","pull" ]
+CMD [ "yarn" ]
 CMD [ "yarn","prod" ]
 
 # docker build -f docker/dockerfile -t loganlee/back-nia .
