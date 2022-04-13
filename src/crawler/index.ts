@@ -32,7 +32,7 @@ export const first_process = ({ isDebug }: InitType) =>
 						.then((e) => ({ ...e, isError: false }))
 						.catch((err) => ({ data: err, isError: true }));
 
-					console.log(`Going for ${name} ${page} page. isError: ${isError}`);
+					// console.log(`Going for ${name} ${page} page. isError: ${isError}`);
 					if (!isError) {
 						const $ = cheerio.load(data);
 
@@ -141,10 +141,10 @@ const detail_parser = (linkHolder: LinkHolder[], name: string, isDebug: boolean)
 						}
 						if (count + 1 === length) {
 							const { count: old_count, doProceed } = await set_target_from_as_old(_from);
-							console.log(`${old_count} are set old from ${_from} `);
+							// console.log(`${old_count} are set old from ${_from} `);
 							if (doProceed) {
 								const { count } = await create_new_post(holder);
-								console.log(`Parser: ${_from}, ${count} posts are inserted`);
+								// console.log(`Parser: ${_from}, ${count} posts are inserted`);
 								resolve({ parsing_done: true, count });
 							}
 						}
